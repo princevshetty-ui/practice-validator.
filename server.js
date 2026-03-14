@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const express = require("express");
+const fs = require("fs");
 const path = require("path");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
@@ -14,9 +15,13 @@ const MODEL_CANDIDATES = [
   "gemini-1.5-flash-latest",
   "gemini-1.5-pro-latest",
 ].filter(Boolean);
+const DIST_DIR = path.join(__dirname, "dist");
+const DIST_INDEX = path.join(DIST_DIR, "index.html");
 
 app.use(express.json({ limit: "1mb" }));
-app.use(express.static(path.join(__dirname, "public")));
+if (fs.existsSync(DIST_DIR)) {
+  app.use(express.static(DIST_DIR));
+}
 
 function extractJson(text) {
   const cleaned = text.trim().replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
@@ -46,17 +51,17 @@ function buildLocalFallbackValidation(idea) {
     if (rule.pattern.test(lower) && !selected.includes(rule.sdg)) {
       selected.push(rule.sdg);
     }
-    if (selected.length === 3) {
+    if (selected.length === 2) {
       break;
     }
   }
 
   const defaults = [
-    "SDG 8: Decent Work and Economic Growth",
     "SDG 9: Industry, Innovation and Infrastructure",
+    "SDG 8: Decent Work and Economic Growth",
     "SDG 10: Reduced Inequalities",
   ];
-  while (selected.length < 3) {
+  while (selected.length < 2) {
     const candidate = defaults[selected.length];
     if (!selected.includes(candidate)) {
       selected.push(candidate);
@@ -64,13 +69,14 @@ function buildLocalFallbackValidation(idea) {
   }
 
   const wordCount = normalized ? normalized.split(" ").length : 0;
-  const technicalMatches = (lower.match(/ai|ml|blockchain|hardware|sensor|api|platform|integration|automation/g) || []).length;
-  const complexityScore = Math.max(1, Math.min(10, 3 + Math.floor(wordCount / 20) + technicalMatches));
+  const technicalMatches = (lower.match(/ai|ml|blockchain|hardware|sensor|api|platform|integration|automation|deep tech/g) || []).length;
+  const impactMatches = (lower.match(/climate|health|education|farm|jobs|poverty|water|energy|inclusion/g) || []).length;
+  const innovationScore = Math.max(1, Math.min(100, 45 + technicalMatches * 9 + impactMatches * 5 + Math.floor(wordCount / 8)));
 
   return {
-    valueProposition: `This idea creates practical user value by turning ${shortIdea} into a focused, impact-oriented solution for a clear problem.`,
+    hook: `This solution turns ${shortIdea} into a credible, high-impact hackathon pitch with clear user value and scalable execution potential.`,
     sdgs: selected,
-    complexityScore,
+    innovationScore,
   };
 }
 
@@ -112,13 +118,13 @@ app.post("/api/validate", async (req, res) => {
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
     const prompt = [
-      "You are an AI startup and impact advisor.",
+        "You are an expert startup mentor helping hackathon teams craft investor-ready pitches.",
       "Analyze this project idea and return only valid JSON with this exact shape:",
-      '{"valueProposition":"string","sdgs":["string","string","string"],"complexityScore":number}',
+        '{"hook":"string","sdgs":["string","string"],"innovationScore":number}',
       "Rules:",
-      "- valueProposition must be exactly one sentence.",
-      "- sdgs must contain exactly 3 Sustainable Development Goals as strings formatted like 'SDG X: Name'.",
-      "- complexityScore must be an integer between 1 and 10.",
+        "- hook must be exactly one sentence and sound professional.",
+        "- sdgs must contain 1 to 2 Sustainable Development Goals as strings formatted like 'SDG X: Name'.",
+        "- innovationScore must be an integer between 1 and 100.",
       "- Do not include markdown, explanations, or code fences.",
       "",
       `Project idea: ${idea}`,
@@ -129,16 +135,16 @@ app.post("/api/validate", async (req, res) => {
     const parsed = extractJson(raw);
 
     const responsePayload = {
-      valueProposition: String(parsed.valueProposition || "").trim(),
-      sdgs: Array.isArray(parsed.sdgs) ? parsed.sdgs.slice(0, 3).map((s) => String(s).trim()) : [],
-      complexityScore: Number(parsed.complexityScore),
+        hook: String(parsed.hook || "").trim(),
+        sdgs: Array.isArray(parsed.sdgs) ? parsed.sdgs.slice(0, 2).map((s) => String(s).trim()) : [],
+        innovationScore: Number(parsed.innovationScore),
     };
 
-    if (!responsePayload.valueProposition || responsePayload.sdgs.length !== 3 || !Number.isFinite(responsePayload.complexityScore)) {
+      if (!responsePayload.hook || responsePayload.sdgs.length < 1 || responsePayload.sdgs.length > 2 || !Number.isFinite(responsePayload.innovationScore)) {
       throw new Error("Model response format validation failed.");
     }
 
-    responsePayload.complexityScore = Math.max(1, Math.min(10, Math.round(responsePayload.complexityScore)));
+      responsePayload.innovationScore = Math.max(1, Math.min(100, Math.round(responsePayload.innovationScore)));
 
     return res.json(responsePayload);
   } catch (error) {
@@ -174,11 +180,15 @@ app.post("/api/validate", async (req, res) => {
 });
 
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  if (fs.existsSync(DIST_INDEX)) {
+    return res.sendFile(DIST_INDEX);
+  }
+
+  return res.status(404).send("Frontend build not found. Run npm run dev for local development or npm run build for production assets.");
 });
 
 const server = app.listen(PORT, () => {
-  console.log(`AI Idea Validator running at http://localhost:${PORT}`);
+  console.log(`Smart Pitch Validator API running at http://localhost:${PORT}`);
 });
 
 server.on("error", (error) => {

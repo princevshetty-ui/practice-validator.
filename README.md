@@ -1,21 +1,23 @@
-# AI Idea Validator MVP
+# Smart Pitch Validator
 
-Single-file Node.js Express backend + simple Tailwind frontend for validating hackathon ideas with Gemini.
+Single-page React app (Vite) + Express backend that transforms a raw project idea into a polished hackathon pitch aligned to SDGs.
 
 ## Features
 
-- Input a project idea in the browser.
-- Click Validate to call Gemini.
-- Get:
-	- 1-sentence value proposition
-	- 3 relevant SDGs
-	- Complexity score (1-10)
+- Input a project idea in a modern glassmorphism UI.
+- Validate with Gemini-powered pitch analysis.
+- Output:
+	- The Hook: 1-sentence professional summary
+	- SDG Alignment: 1-2 relevant goals
+	- Innovation Score: 1-100
+- Framer Motion animations for entrance, loading pulse, and staggered results.
 
 ## Tech Stack
 
+- Frontend: React + Vite + Tailwind CSS
+- Motion/UI: Framer Motion + Lucide React
 - Backend: Express (`server.js`)
 - AI SDK: `@google/generative-ai`
-- Frontend: `public/index.html` + Tailwind via CDN
 - Secrets: `.env`
 
 ## Setup
@@ -35,14 +37,28 @@ GEMINI_API_KEY=your_actual_key_here
 # ENABLE_LOCAL_FALLBACK=true
 ```
 
-3. Start the app:
+3. Run backend + frontend in two terminals:
+
+Backend API:
 
 ```bash
 npm start
 ```
 
-4. Open:
+Frontend app:
+
+```bash
+npm run dev
+```
+
+Or run both together:
+
+```bash
+npm run dev:all
+```
+
+4. Open Vite URL shown in terminal (usually):
 
 ```text
-http://localhost:3000
+http://localhost:5173
 ```
