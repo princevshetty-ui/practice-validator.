@@ -1,51 +1,58 @@
 # Smart Pitch Validator
 
-Single-page React app (Vite) + Express backend that transforms a raw project idea into a polished hackathon pitch aligned to SDGs.
+> **Status: Unfinished / experimental project**
 
-## Features
+Smart Pitch Validator is an early-stage AI-assisted hackathon practice application that takes a raw project idea and turns it into a more structured pitch aligned with relevant Sustainable Development Goals (SDGs).
 
-- Input a project idea in a modern glassmorphism UI.
-- Validate with Gemini-powered pitch analysis.
-- Output:
-	- The Hook: 1-sentence professional summary
-	- SDG Alignment: 1-2 relevant goals
-	- Innovation Score: 1-100
-- Framer Motion animations for entrance, loading pulse, and staggered results.
+Development was paused during an earlier project phase, so this repository should not be considered a finished product.
+
+## What It Does
+
+The intended workflow is:
+
+1. Enter a project idea.
+2. Send the idea to an AI-powered analysis backend.
+3. Generate a polished one-sentence project hook.
+4. Identify relevant SDG alignment.
+5. Produce an innovation score.
 
 ## Tech Stack
 
-- Frontend: React + Vite + Tailwind CSS
-- Motion/UI: Framer Motion + Lucide React
-- Backend: Express (`server.js`)
-- AI SDK: `@google/generative-ai`
-- Secrets: `.env`
+- **Frontend:** React, Vite
+- **Styling:** Tailwind CSS
+- **Animations:** Framer Motion
+- **Icons:** Lucide React
+- **Backend:** Express.js
+- **AI:** Google Gemini API
+- **Configuration:** dotenv
 
-## Setup
+## Current Status
 
-1. Install dependencies:
+This project is **unfinished**. It was created as a hackathon/practice experiment and development was paused before the application was taken to a final production-ready state.
+
+The existing implementation is retained as a reference and can be resumed or expanded later.
+
+## Local Development
+
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Add your Gemini API key in `.env`:
+Configure a Gemini API key in `.env`:
 
 ```env
 GEMINI_API_KEY=your_actual_key_here
-
-# Optional: keep demo working when Gemini quota is exceeded
-# ENABLE_LOCAL_FALLBACK=true
 ```
 
-3. Run backend + frontend in two terminals:
-
-Backend API:
+Run the backend:
 
 ```bash
 npm start
 ```
 
-Frontend app:
+Run the frontend in a second terminal:
 
 ```bash
 npm run dev
@@ -57,8 +64,6 @@ Or run both together:
 npm run dev:all
 ```
 
-4. Open Vite URL shown in terminal (usually):
+## Future Direction
 
-```text
-http://localhost:5173
-```
+If development resumes, the project could be expanded with stronger pitch evaluation, structured feedback, additional scoring criteria, improved error handling, and a more complete hackathon idea validation workflow.
